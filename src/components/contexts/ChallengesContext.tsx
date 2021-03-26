@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useState } from 'react';
+import { createContext, ReactNode, useEffect, useState } from 'react';
 import challenges from '../../../challenges.json';
 
 interface Challenge {
@@ -15,6 +15,7 @@ interface ChallengesContextData {
   levelUp: () => void;
   startNewChallenge: () => void;
   resetChallenge: () => void;
+  completeChallenge: () => void;
 }
 
 interface ChallengesProviderProps {
@@ -45,6 +46,25 @@ export function ChallengesProvider({ children }: ChallengesProviderProps) {
   function resetChallenge() {
     setActiveChallenge(null);
   }
+
+  function completeChallenge() {
+    if (!activeChallenge) {
+      return;
+    }
+
+    const { amount } = activeChallenge;
+
+    let finalExperiense = currentExperiense + amount;
+
+    if (finalExperiense >= experienceToNextLevel) {
+      finalExperiense = finalExperiense - experienceToNextLevel;
+      levelUp();
+    }
+
+    setCurrentExperiense(finalExperiense);
+    setActiveChallenge(null);
+    setChallengesCompleted(challengesCompleted + 1);
+  }
   
   return (
     <ChallengesContext.Provider value={{
@@ -55,7 +75,8 @@ export function ChallengesProvider({ children }: ChallengesProviderProps) {
       experienceToNextLevel,
       levelUp,
       startNewChallenge,
-      resetChallenge
+      resetChallenge,
+      completeChallenge
     }}>
       {children}
     </ChallengesContext.Provider>
